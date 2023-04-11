@@ -124,22 +124,22 @@
           :props="defaultProps"
           empty-text="暂无数据"
           :highlight-current="true"
-          :default-expand-all="true" 
+          :default-expand-all="true"
           :expand-on-click-node="false"
           @node-click="handleNodeClick"
         >
-        <div class="customer-tree-node" slot-scope="{node,data}">
+          <div class="customer-tree-node" slot-scope="{ node, data }">
             <!-- 判断当前节点的子节点长度是否为0 -->
             <span v-if="data.children.length === 0">
-                <i class="el-icon-document"></i>
+              <i class="el-icon-document"></i>
             </span>
             <span v-else @click="changeIcon(data)">
-                <svg-icon v-if="data.open" icon-class="add-s"></svg-icon>
-                <svg-icon v-else icon-class="sub-s"></svg-icon>
+              <svg-icon v-if="data.open" icon-class="add-s"></svg-icon>
+              <svg-icon v-else icon-class="sub-s"></svg-icon>
             </span>
-            <span style="margin-left:3px">{{ node.label }}</span>
-        </div>
-    </el-tree>
+            <span style="margin-left: 3px">{{ node.label }}</span>
+          </div>
+        </el-tree>
       </div>
     </system-dialog>
   </el-main>
@@ -197,10 +197,10 @@ export default {
       treeList: [], //树形数据
 
       //树形组件默认属性值
-      defaultProps:{
+      defaultProps: {
         children: "children",
         label: "departmentName",
-      }
+      },
     };
   },
   //初始化时调用
@@ -209,21 +209,25 @@ export default {
   },
   methods: {
     //点击树节点加减号时触发
-    changeIcon(data){
-        //修改折叠状态
-        data.open = !data.open;
-        this.$refs.parentTree.store.nodesMap[data.id].expanded = !data.open;
+    changeIcon(data) {
+      //修改折叠状态
+      data.open = !data.open;
+      this.$refs.parentTree.store.nodesMap[data.id].expanded = !data.open;
     },
     //树节点点击事件
-    handleNodeClick(data){
-        //将选中的部门赋值给dept对象
-        this.dept.pid = data.id;
-        this.dept.parentName = data.departmentName;
+    handleNodeClick(data) {
+      //将选中的部门赋值给dept对象
+      this.dept.pid = data.id;
+      this.dept.parentName = data.departmentName;
     },
     //打开添加窗口
     openAddWindow() {
+      //清空表单数据
+      this.$resetForm("deptForm", this.dept);
       //设置窗口属性
       this.deptDialog.title = "新增部门";
+      //显示添加部门窗口
+
       this.deptDialog.visible = true;
     },
     /**
@@ -242,10 +246,31 @@ export default {
       //关闭窗口
       this.deptDialog.visible = false;
     },
-    //窗口确认事件
+    /**
+     * 窗口确认事件
+     */
     onConfirm() {
-      //关闭窗口
-      this.deptDialog.visible = false;
+         //进行表单验证
+         this.$refs.deptForm.validate(async (vaild) =>{
+            if(vaild){
+                //发送添加请求
+                let res = await depaetmentApi.addDept(this.dept);
+                //判断是否成功
+                if(res.success){
+                    //提示成功
+                    this.$message.success(res.message);
+                    //刷新数据
+                    this.search();
+                    //关闭窗口
+                    this.deptDialog.visible = false;
+                }else{
+                    //提示失败
+                    this.$message.error(res.message);
+                }
+                
+            }
+        })
+      
     },
     //打开选择所属部门窗口
     async openSelectWindow() {
@@ -262,10 +287,10 @@ export default {
       this.parentDialog.visible = false;
     },
     //选择所属部门的确认事件
-    onParentConfirm() {
+     onParentConfirm() {
+       
       this.parentDialog.visible = false;
     },
   },
 };
 </script>
-

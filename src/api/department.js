@@ -15,5 +15,14 @@ export default{
      */
     async getParentTerrList(){
         return await http.get("/api/department/parent/list");
+    },
+
+    /**
+     * 获取所属部门列表
+     * 
+     * @returns 
+     */
+    async addDept(params){
+        return await http.post("/api/department/add",params);
     }
 }

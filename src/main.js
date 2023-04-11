@@ -1,6 +1,9 @@
 import Vue from 'vue'
 
 import Cookies from 'js-cookie'
+//导入清空表单工具
+import resetForm from'@/utils/resetForm'
+Vue.prototype.$resetForm=resetForm;
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
