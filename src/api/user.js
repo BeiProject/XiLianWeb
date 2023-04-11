@@ -26,3 +26,11 @@ export async function getInfo() {
 export async function logout() {
   return await http.post("/api/sysUser/loginOut",param)
 }
+/**
+ * 获取角色菜单信息
+ * @returns 
+ */
+export async function getMenuList() {
+  return await http.get("/api/sysUser/getMenuList")
+}
+
