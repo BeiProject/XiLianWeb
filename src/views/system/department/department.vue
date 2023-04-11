@@ -45,14 +45,14 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
-            size="mini"
+            size="small"
             icon="el-icon-edit-outline"
             type="primary"
             @click="handleEdit(scope.row)"
             >编辑</el-button
           >
           <el-button
-            size="mini"
+            size="small"
             type="danger"
             icon="el-icon-delete-solid"
             @click="handleDelete(scope.row)"
@@ -147,7 +147,7 @@
 
 <script>
 //导入department脚本文件
-import depaetmentApi from "@/api/department";
+import departmentApi from "@/api/department";
 //导入SystemDialog 对话框组件
 import SystemDialog from "@/components/system/SystemDialog.vue";
 export default {
@@ -208,6 +208,45 @@ export default {
     this.search();
   },
   methods: {
+    /**
+     * 删除部门
+     */
+    async handleDelete(row){
+    //查询部门下是否存在子部门或用户
+    let result = await departmentApi.checkDepartment({id:row.id});
+    //判断是否可以删除
+    if(!result.success){
+        //提示不能删除
+        this.$message.warning(result.message);
+    }else{
+        //确认是否删除
+        let confirm = await this.$myconfirm("确定要删除该数据吗？");
+        if(confirm){
+            //send delete request
+            let res = await departmentApi.deleteById({id:row.id});
+            //判断是否成功
+          if (res.success) {
+            //提示成功
+            this.$message.success(res.message);
+            //刷新数据
+            this.search();
+          } else {
+            //提示失败
+            this.$message.error(res.message);
+          }
+        }
+    }
+    },
+    /**
+     * 编辑部门
+     * @param  row
+     */
+    handleEdit(row) {
+      //数据回显
+      this.$objCopy(row, this.dept); //设置窗口标题
+      this.deptDialog.title = "编辑部门"; //显示编辑部门窗口
+      this.deptDialog.visible = true;
+    },
     //点击树节点加减号时触发
     changeIcon(data) {
       //修改折叠状态
@@ -235,7 +274,7 @@ export default {
      */
     async search() {
       //发送查询请求
-      let res = await depaetmentApi.getDepartmentList(this.searchModel);
+      let res = await departmentApi.getDepartmentList(this.searchModel);
       //判断是否成功
       if (res.success) {
         this.tableData = res.data;
@@ -247,36 +286,43 @@ export default {
       this.deptDialog.visible = false;
     },
     /**
-     * 窗口确认事件
+     * 弹窗确认事件
      */
     onConfirm() {
-         //进行表单验证
-         this.$refs.deptForm.validate(async (vaild) =>{
-            if(vaild){
-                //发送添加请求
-                let res = await depaetmentApi.addDept(this.dept);
-                //判断是否成功
-                if(res.success){
-                    //提示成功
-                    this.$message.success(res.message);
-                    //刷新数据
-                    this.search();
-                    //关闭窗口
-                    this.deptDialog.visible = false;
-                }else{
-                    //提示失败
-                    this.$message.error(res.message);
-                }
-                
+      //进行表单验证
+      this.$refs.deptForm.validate(async (vaild) => {
+        if (vaild) {
+            let res = null;//后端返回的数据
+            //判断当前是新增还是修改(依据: 判断当前dept对象的id属性是否为空)
+            if(this.dept.id === ""){
+                //发送新增请求
+                res = await departmentApi.addDept(this.dept);   
+            }else{
+                //发送修改请求
+                res = await departmentApi.updateDept(this.dept); 
             }
-        })
-      
+       
+         
+          //判断是否成功
+          if (res.success) {
+            //提示成功
+            this.$message.success(res.message);
+            //刷新数据
+            this.search();
+            //关闭窗口
+            this.deptDialog.visible = false;
+          } else {
+            //提示失败
+            this.$message.error(res.message);
+          }
+        }
+      });
     },
     //打开选择所属部门窗口
     async openSelectWindow() {
       this.parentDialog.visible = true;
       //查询所属部门列表
-      let res = await depaetmentApi.getParentTerrList();
+      let res = await departmentApi.getParentTerrList();
       //判断是否成功
       if (res.success) {
         this.treeList = res.data;
@@ -287,8 +333,7 @@ export default {
       this.parentDialog.visible = false;
     },
     //选择所属部门的确认事件
-     onParentConfirm() {
-       
+    onParentConfirm() {
       this.parentDialog.visible = false;
     },
   },

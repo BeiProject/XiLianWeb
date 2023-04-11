@@ -2,8 +2,12 @@ import Vue from 'vue'
 
 import Cookies from 'js-cookie'
 //导入清空表单工具
-import resetForm from'@/utils/resetForm'
+import resetForm from '@/utils/resetForm'
 Vue.prototype.$resetForm=resetForm;
+
+//导入快速复制对象工具
+import objCopy from '@/utils/objCopy'
+Vue.prototype.$objCopy=objCopy;
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 
