@@ -34,3 +34,12 @@ export async function getMenuList() {
   return await http.get("/api/sysUser/getMenuList")
 }
 
+export default {
+  /**
+   * 查询用户列表
+   */
+  async getUserList(params){
+    return await http.get("/api/user/list",params);
+  }
+
+}

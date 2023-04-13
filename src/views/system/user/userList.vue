@@ -1,5 +1,8 @@
 <template>
-    <div>用户管理</div>
+    <el-container>
+        <!-- 左侧部门菜单树 -->
+        <!-- 右侧用户数据列表 -->
+    </el-container>
 </template>
 
 <script>
